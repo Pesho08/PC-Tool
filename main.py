@@ -1,6 +1,8 @@
 import psutil
 import time
 import os
+from xulbux import System
+
 
 def get_cpu_usage():
   cores = psutil.cpu_count()
@@ -25,9 +27,20 @@ def get_disk_usage():
   disk_usage_pc = disk.percent
   return total_disk_gb, used_disk_gb, free_disk_gb, disk_usage_pc
 
-
+print("System Infos")
+System.os_name
+System.os_version
+System.architecture
+System.hostname
+System.username
+System.is_win
+System.is_linux
+System.is_mac
+print(f"OS: {System.os_name} {System.os_version} ({System.architecture}), Hostname: {System.hostname}, Username: {System.username}")
+print(f"Is Windows: {System.is_win}, Is Linux: {System.is_linux}, Is Mac: {System.is_mac}")
+print("System Monitor - Press Ctrl+C to exit")
 while True:
-  os.system('cls' if os.name == 'nt' else 'clear')
+  #os.system('cls' if os.name == 'nt' else 'clear')
   cores, usage = get_cpu_usage()
   print(f"CPU Cores: {cores}, CPU Usage: {usage}")
   total_mem_gb, total_mem_av, total_mem_pc, mem_used = get_memory_usage()
@@ -35,3 +48,4 @@ while True:
   total_disk_gb, used_disk_gb, free_disk_gb, disk_usage_pc = get_disk_usage()
   print(f"Total Disk: {total_disk_gb} GB, Used Disk: {used_disk_gb} GB, Free Disk: {free_disk_gb} GB, Disk Usage: {disk_usage_pc}%")
   time.sleep(5)
+  
