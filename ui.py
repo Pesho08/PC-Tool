@@ -1,9 +1,12 @@
 import customtkinter as ctk
+import tkinter as tk
 from main import get_cpu_usage, get_memory_usage, get_disk_usage
 from xulbux import System
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib
+import ctypes
+ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("pesho.systemmonitor")
 
 # Matplotlib dark style
 matplotlib.rcParams.update({
@@ -18,7 +21,7 @@ matplotlib.rcParams.update({
 })
 
 # App config
-ctk.set_appearance_mode("dark")
+ctk.set_appearance_mode("system")
 ctk.set_default_color_theme("blue")
 
 FONT_TITLE  = ("Segoe UI", 20, "bold")
@@ -40,6 +43,9 @@ root.configure(fg_color=COLOR_BG)
 root.columnconfigure(0, weight=1)
 root.columnconfigure(1, weight=2)
 root.rowconfigure(1, weight=1)
+
+# Set app icon
+root.iconbitmap("icon/tool-icon.ico")
 
 # Header
 header = ctk.CTkFrame(root, fg_color=COLOR_FRAME, corner_radius=0, height=55)
@@ -68,7 +74,7 @@ info_items = [
     ("User",     System.username),
     ("OS",       System.os_name),
     ("Version",  System.os_version),
-    ("Platform", "Windows" if System.is_win else ("Linux" if System.is_linux else "macOS")),
+    ("Platform", System.os_name),
 ]
 
 for i, (key, val) in enumerate(info_items):
