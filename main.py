@@ -1,6 +1,5 @@
 import psutil
 import time
-import os
 from xulbux import System
 
 
@@ -28,10 +27,8 @@ def get_disk_usage():
   return total_disk_gb, used_disk_gb, free_disk_gb, disk_usage_pc
 
 if __name__ == "__main__":
-  
   print("System Monitor - Press Ctrl+C to exit")
   while True:
-    #os.system('cls' if os.name == 'nt' else 'clear')
     cores, usage = get_cpu_usage()
     print(f"CPU Cores: {cores}, CPU Usage: {usage}")
     total_mem_gb, total_mem_av, total_mem_pc, mem_used = get_memory_usage()
