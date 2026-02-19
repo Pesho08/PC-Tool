@@ -1,8 +1,9 @@
 from textual.app import App
 from textual.widgets import Header, Footer, Static, Label, ProgressBar
+from textual.color import Gradient
 from textual.containers import Horizontal, Vertical
 from xulbux import System as xx
-from main import get_cpu_usage, get_memory_usage, get_disk_usage
+from main import get_cpu_usage, get_memory_usage, get_disk_usage, get_used_processes
 
 class tuiApp(App):
   # CSS for the TUI layout
@@ -11,8 +12,12 @@ class tuiApp(App):
     width: 30%;
     border: round white;
     }
+    #middle-panel {
+    width: 40%;
+    border: round blue;
+    } 
   #right-panel {
-    width: 70%;
+    width: 30%;
     border: round red;
     }
     """
@@ -35,15 +40,29 @@ class tuiApp(App):
         system_info_label = Label("\n".join(system_info))
         yield system_info_label
 
-      # Right Panel for System Stats
-      with Vertical(id="right-panel"):  
+      # Middle Panel for System Stats
+      with Vertical(id="middle-panel"):  
         self.cpu_label = Label("")
         self.memory_label = Label("")
         self.disk_label = Label("")
         yield self.cpu_label
-        yield ProgressBar(total=100, id="cpu_progress", show_eta=False)
+        gradient = Gradient.from_colors(
+          "green",
+          "yellow", 
+          "red"
+        )
+        yield ProgressBar(total=100, id="cpu_progress", show_eta=False, gradient=gradient)
         yield self.memory_label
+        yield ProgressBar(total=100, id="mem_progress", show_eta=False)
         yield self.disk_label
+        yield ProgressBar(total=100, id="disk_progress", show_eta=False)
+        
+      # Right Panel for Top Processes
+      with Vertical(id="right-panel"):
+        yield Label("Top 5 processes by CPU Usage")
+        self.process_label = Label("")
+        yield self.process_label
+        
   def on_mount(self):
     self.set_interval(1, self.update_stats)
     
@@ -51,11 +70,18 @@ class tuiApp(App):
     cpu_cores, cpu_usage = get_cpu_usage()
     mem_total, mem_avail, mem_percent, mem_used = get_memory_usage()
     disk_total, disk_used, disk_free, disk_percent = get_disk_usage()
-    
+    processes = get_used_processes()
+    processes_text = "\n".join([
+    f"{p.info['name']} - {p.info['cpu_percent']}%"
+    for p in processes
+    ])
     self.cpu_label.update(f"CPU Cores: {cpu_cores}, CPU Usage: {cpu_usage}%")
     self.query_one("#cpu_progress", ProgressBar).update(progress=cpu_usage)
     self.memory_label.update(f"Memory: {mem_used} GB / {mem_total} GB ({mem_percent}%)")
+    self.query_one("#mem_progress", ProgressBar).update(progress=mem_percent)
     self.disk_label.update(f"Disk: {disk_used} GB / {disk_total} GB ({disk_percent}%)")
+    self.query_one("#disk_progress", ProgressBar).update(progress=disk_percent)
+    self.process_label.update(processes_text)  
       
 # Start the TUI application
 if __name__ == "__main__":

@@ -1,6 +1,7 @@
 import psutil
 import time
 from xulbux import System
+import wmi
 
 
 def get_cpu_usage():
@@ -26,6 +27,22 @@ def get_disk_usage():
   disk_usage_pc = disk.percent
   return total_disk_gb, used_disk_gb, free_disk_gb, disk_usage_pc
 
+def get_used_processes():
+  processes = [p for p in psutil.process_iter(['pid', 'name', 'cpu_percent'])
+               if p.info['name'] != "System Idle Process"]
+  processes = sorted(processes, key=lambda process: process.info['cpu_percent'],reverse=True)
+  return processes[:5]
+
+def get_internet_speed():
+  messung1 = psutil.net_io_counters()
+  time.sleep(0.5)
+  messung2 = psutil.net_io_counters()
+  difference_download_speed = messung2.bytes_recv - messung1.bytes_recv
+  difference_download_speed = round((difference_download_speed / 1024**2), 4)
+  differnce_upload_speed = messung2.bytes_sent - messung1.bytes_sent
+  differnce_upload_speed = round((differnce_upload_speed / 1024**2), 4)
+  return difference_download_speed, differnce_upload_speed
+  
 if __name__ == "__main__":
   print("System Monitor - Press Ctrl+C to exit")
   while True:
@@ -35,5 +52,7 @@ if __name__ == "__main__":
     print(f"Total Memory: {total_mem_gb} GB, Available Memory: {total_mem_av} GB, Memory Usage: {total_mem_pc}%, Used Memory: {mem_used} GB")
     total_disk_gb, used_disk_gb, free_disk_gb, disk_usage_pc = get_disk_usage()
     print(f"Total Disk: {total_disk_gb} GB, Used Disk: {used_disk_gb} GB, Free Disk: {free_disk_gb} GB, Disk Usage: {disk_usage_pc}%")
+    difference_download_speed, differnce_upload_speed = get_internet_speed()
+    print(f"Download Speed: {difference_download_speed} MB/s, Upload Speed: {differnce_upload_speed} MB/s")
     time.sleep(5)
     
