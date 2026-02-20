@@ -3,7 +3,7 @@ from textual.widgets import Header, Footer, Static, Label, ProgressBar
 from textual.color import Gradient
 from textual.containers import Horizontal, Vertical
 from xulbux import System as xx
-from main import get_cpu_usage, get_memory_usage, get_disk_usage, get_used_processes
+from main import get_cpu_usage, get_memory_usage, get_disk_usage, get_cpu_used_processes, get_internet_speed
 
 class tuiApp(App):
   # CSS for the TUI layout
@@ -39,6 +39,9 @@ class tuiApp(App):
         ]
         system_info_label = Label("\n".join(system_info))
         yield system_info_label
+        yield Label("Internet Speed", id="header2")
+        self.internet_speed_label = Label("")
+        yield self.internet_speed_label
 
       # Middle Panel for System Stats
       with Vertical(id="middle-panel"):  
@@ -70,7 +73,8 @@ class tuiApp(App):
     cpu_cores, cpu_usage = get_cpu_usage()
     mem_total, mem_avail, mem_percent, mem_used = get_memory_usage()
     disk_total, disk_used, disk_free, disk_percent = get_disk_usage()
-    processes = get_used_processes()
+    Download, Upload = get_internet_speed()
+    processes = get_cpu_used_processes()
     processes_text = "\n".join([
     f"{p.info['name']} - {p.info['cpu_percent']}%"
     for p in processes
@@ -82,6 +86,8 @@ class tuiApp(App):
     self.disk_label.update(f"Disk: {disk_used} GB / {disk_total} GB ({disk_percent}%)")
     self.query_one("#disk_progress", ProgressBar).update(progress=disk_percent)
     self.process_label.update(processes_text)  
+    self.internet_speed_label.update(f"Download: {Download:.4f} Mbps, Upload: {Upload:.4f} Mbps")
+    
       
 # Start the TUI application
 if __name__ == "__main__":

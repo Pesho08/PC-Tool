@@ -27,7 +27,7 @@ def get_disk_usage():
   disk_usage_pc = disk.percent
   return total_disk_gb, used_disk_gb, free_disk_gb, disk_usage_pc
 
-def get_used_processes():
+def get_cpu_used_processes():
   processes = [p for p in psutil.process_iter(['pid', 'name', 'cpu_percent'])
                if p.info['name'] != "System Idle Process"]
   processes = sorted(processes, key=lambda process: process.info['cpu_percent'],reverse=True)
